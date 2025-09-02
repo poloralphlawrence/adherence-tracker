@@ -75,7 +75,7 @@
             };
 
             // Send data to Google Sheets
-            fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
+            fetch('https://script.google.com/macros/s/AKfycbxZIOJlohUP1lNrNHPIvuhkpdAGsIU3Ac3iQQ9WtidEmjNGv85-WzggAqIOgan6vLxF/exec', {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {
@@ -115,7 +115,7 @@
 
         // Load existing records from Google Sheets on page load
         window.onload = function() {
-            fetch('YOUR_GOOGLE_APPS_SCRIPT_URL?getData=true')
+            fetch('https://script.google.com/macros/s/AKfycbxZIOJlohUP1lNrNHPIvuhkpdAGsIU3Ac3iQQ9WtidEmjNGv85-WzggAqIOgan6vLxF/exec?getData=true')
                 .then(response => response.json())
                 .then(data => {
                     const tableBody = document.getElementById('tableBody');
