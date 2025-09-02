@@ -4,57 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adherence Tracker</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-        .form-container, .table-container {
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        button {
-            padding: 10px;
-            margin: 5px;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>Adherence Tracker</h1>
     <div class="form-container">
         <form id="adherenceForm">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <br><br>
-            <label for="adherenceType">Adherence Type:</label>
-            <select id="adherenceType" name="adherenceType" required>
-                <option value="Shift">Shift</option>
-                <option value="Break 1">Break 1</option>
-                <option value="Break 2">Break 2</option>
-                <option value="Lunch Break">Lunch Break</option>
-                <option value="Meeting">Meeting</option>
-                <option value="Adhoc Task">Adhoc Task</option>
-                <option value="Training">Training</option>
-            </select>
-            <br><br>
-            <button type="button" id="startBtn">Start</button>
-            <button type="button" id="stopBtn" class="hidden">Stop</button>
+            <div>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="adherenceType">Adherence Type</label>
+                <select id="adherenceType" name="adherenceType" required>
+                    <option value="Shift">Shift</option>
+                    <option value="Break 1">Break 1</option>
+                    <option value="Break 2">Break 2</option>
+                    <option value="Lunch Break">Lunch Break</option>
+                    <option value="Meeting">Meeting</option>
+                    <option value="Adhoc Task">Adhoc Task</option>
+                    <option value="Training">Training</option>
+                </select>
+            </div>
+            <div>
+                <button type="button" id="startBtn">Start</button>
+                <button type="button" id="stopBtn" class="hidden">Stop</button>
+            </div>
         </form>
     </div>
     <div class="table-container">
