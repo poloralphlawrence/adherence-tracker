@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adherence Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .form-container, .table-container {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Adherence Tracker</h1>
+    <div class="form-container">
+        <form id="adherenceForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <br><br>
+            <label for="adherenceType">Adherence Type:</label>
+            <select id="adherenceType" name="adherenceType" required>
+                <option value="Shift">Shift</option>
+                <option value="Break 1">Break 1</option>
+                <option value="Break 2">Break 2</option>
+                <option value="Lunch Break">Lunch Break</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Adhoc Task">Adhoc Task</option>
+                <option value="Training">Training</option>
+            </select>
+            <br><br>
+            <button type="button" id="startBtn">Start</button>
+            <button type="button" id="stopBtn" class="hidden">Stop</button>
+        </form>
+    </div>
+    <div class="table-container">
+        <h2>Adherence Records</h2>
+        <table id="adherenceTable">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Adherence Type</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Duration (minutes)</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let startTime = null;
+
+        document.getElementById('startBtn').addEventListener('click', function() {
+            startTime = new Date();
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            document.getElementById('adherenceType').disabled = true;
+            document.getElementById('username').disabled = true;
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', function() {
+            const endTime = new Date();
+            const username = document.getElementById('username').value;
+            const adherenceType = document.getElementById('adherenceType').value;
+            const duration = ((endTime - startTime) / 1000 / 60).toFixed(2); // Duration in minutes
+
+            // Prepare data to send to Google Sheets
+            const data = {
+                username: username,
+                adherenceType: adherenceType,
+                startTime: startTime.toISOString(),
+                endTime: endTime.toISOString(),
+                duration: duration
+            };
+
+            // Send data to Google Sheets
+            fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    // Add to table
+                    const tableBody = document.getElementById('tableBody');
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${username}</td>
+                        <td>${adherenceType}</td>
+                        <td>${startTime.toLocaleString()}</td>
+                        <td>${endTime.toLocaleString()}</td>
+                        <td>${duration}</td>
+                    `;
+                    tableBody.appendChild(row);
+                } else {
+                    alert('Error saving data to Google Sheets');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error connecting to Google Sheets');
+            });
+
+            // Reset form
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            document.getElementById('adherenceType').disabled = false;
+            document.getElementById('username').disabled = false;
+            startTime = null;
+        });
+
+        // Load existing records from Google Sheets on page load
+        window.onload = function() {
+            fetch('YOUR_GOOGLE_APPS_SCRIPT_URL?getData=true')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('tableBody');
+                    data.forEach(record => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${record.username}</td>
+                            <td>${record.adherenceType}</td>
+                            <td>${new Date(record.startTime).toLocaleString()}</td>
+                            <td>${new Date(record.endTime).toLocaleString()}</td>
+                            <td>${record.duration}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error loading data:', error));
+        };
+    </script>
+</body>
+</html>
