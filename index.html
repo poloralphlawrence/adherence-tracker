@@ -115,7 +115,7 @@
 
         // Load existing records from Google Sheets on page load
         window.onload = function() {
-            fetch('https://script.google.com/macros/s/AKfycbz-mckOF5gYlfYCpKb4U-TYB5aiXzb9I_AoRXUHwlu0lj3aIdLJXpY6OeOtG3-sxE8M/exec?getData=true')
+            fetch('https://script.google.com/macros/s/AKfycbz-mckOF5gYlfYCpKb4U-TYB5aiXzb9I_AoRXUHwlu0lj3aIdLJXpY6OeOtG3-sxE8M/exec')
                 .then(response => response.json())
                 .then(data => {
                     const tableBody = document.getElementById('tableBody');
