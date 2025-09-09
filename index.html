@@ -4,84 +4,65 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Adherence Tracker</title>
-  <link rel="stylesheet" href="styles.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    .hidden {
-      display: none;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background: #f4f4f4;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .hidden { display: none; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f4f4f4; }
   </style>
 </head>
 <body>
   <h1>Adherence Tracker</h1>
 
-  <div class="form-container">
-    <form id="adherenceForm">
-      <div>
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required>
-      </div>
-      <div>
-        <label for="adherenceType">Adherence Type</label>
-        <select id="adherenceType" name="adherenceType" required>
-          <option value="Shift">Shift</option>
-          <option value="Break 1">Break 1</option>
-          <option value="Break 2">Break 2</option>
-          <option value="Lunch Break">Lunch Break</option>
-          <option value="Meeting">Meeting</option>
-          <option value="Adhoc Task">Adhoc Task</option>
-          <option value="Training">Training</option>
-        </select>
-      </div>
-      <div>
-        <button type="button" id="startBtn">Start</button>
-        <button type="button" id="stopBtn" class="hidden">Stop</button>
-      </div>
-    </form>
-  </div>
+  <form id="adherenceForm">
+    <div>
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required>
+    </div>
+    <div>
+      <label for="adherenceType">Adherence Type</label>
+      <select id="adherenceType" name="adherenceType" required>
+        <option value="Shift">Shift</option>
+        <option value="Break 1">Break 1</option>
+        <option value="Break 2">Break 2</option>
+        <option value="Lunch Break">Lunch Break</option>
+        <option value="Meeting">Meeting</option>
+        <option value="Adhoc Task">Adhoc Task</option>
+        <option value="Training">Training</option>
+      </select>
+    </div>
+    <div>
+      <button type="button" id="startBtn">Start</button>
+      <button type="button" id="stopBtn" class="hidden">Stop</button>
+    </div>
+  </form>
 
-  <div class="table-container">
-    <h2>Adherence Records</h2>
-    <table id="adherenceTable">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Adherence Type</th>
-          <th>Start Time</th>
-          <th>End Time</th>
-          <th>Duration (minutes)</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  </div>
+  <h2>Adherence Records</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Adherence Type</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Duration (minutes)</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
 
   <!-- Supabase client -->
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
-
   <script>
-    // 🔹 Replace with your Supabase credentials
-    const SUPABASE_URL = "https://omlcjvwofcdejcmybyax.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbGNqdndvZmNkZWpjbXlieWF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczNzE4MjAsImV4cCI6MjA3Mjk0NzgyMH0.t00W8wIOQFMprjF8_6AvPPt2zteEs56-rI9Esw4OF_I";
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Supabase init (✅ FIXED)
+    const { createClient } = supabase;
+    const db = createClient("https://omlcjvwofcdejcmybyax.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbGNqdndvZmNkZWpjbXlieWF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczNzE4MjAsImV4cCI6MjA3Mjk0NzgyMH0.t00W8wIOQFMprjF8_6AvPPt2zteEs56-rI9Esw4OF_I");
 
     let startTime = null;
+
+    // Prevent accidental form submission refresh
+    document.getElementById("adherenceForm").addEventListener("submit", e => e.preventDefault());
 
     document.getElementById('startBtn').addEventListener('click', function () {
       startTime = new Date();
@@ -102,8 +83,8 @@
       const adherenceType = document.getElementById('adherenceType').value;
       const duration = ((endTime - startTime) / 1000 / 60).toFixed(2);
 
-      // Insert into Supabase
-      const { data, error } = await supabase
+      // Insert into Supabase (✅ FIXED: using db instead of supabase)
+      const { error } = await db
         .from('adherence')
         .insert([{
           username: username,
@@ -117,8 +98,6 @@
         console.error(error);
         alert("Error saving to Supabase");
       } else {
-        // Add to table
-        const tableBody = document.getElementById('tableBody');
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${username}</td>
@@ -127,7 +106,7 @@
           <td>${endTime.toLocaleString()}</td>
           <td>${duration}</td>
         `;
-        tableBody.appendChild(row);
+        document.getElementById('tableBody').appendChild(row);
       }
 
       // Reset
@@ -138,15 +117,14 @@
       startTime = null;
     });
 
-    // Load records on page load
+    // Load existing records
     window.onload = async function () {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('adherence')
         .select('*')
         .order('id', { ascending: true });
 
       if (!error) {
-        const tableBody = document.getElementById('tableBody');
         data.forEach(record => {
           const row = document.createElement('tr');
           row.innerHTML = `
@@ -156,7 +134,7 @@
             <td>${new Date(record.end_time).toLocaleString()}</td>
             <td>${record.duration}</td>
           `;
-          tableBody.appendChild(row);
+          document.getElementById('tableBody').appendChild(row);
         });
       } else {
         console.error(error);
